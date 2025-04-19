@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Register - Lesedi PAS</title>
+  <link rel="stylesheet" href="css/styles.css">
+  <style>.form-container { display:flex; flex-direction:column; align-items:center; margin-top:50px; gap:10px; }
+  .form-container input, .form-container button { width:300px; padding:10px; border:1px solid #ccc; border-radius:5px; }
+  .form-container button { background:#0059b3; color:white; border:none; cursor:pointer; }
+  .form-container button:hover { background:#004080; }</style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>Register</h2>
+    <input id="regName" placeholder="Name">
+    <input id="regEmail" placeholder="Email">
+    <input id="regPassword" type="password" placeholder="Password">
+    <button id="regSubmit">Submit</button>
+  </div>
+  <script>
+    document.getElementById('regSubmit').onclick = () => { location.href='login.html'; };
+  </script>
+</body>
+</html>

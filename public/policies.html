@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Policies - Lesedi PAS</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <h2>Policy Creation & Benefits</h2>
+  <button id="addBtn">Add Policy</button>
+  <form id="form" style="display:none; margin-top:10px;">
+    <input id="policyMemberId" placeholder="Member ID" required>
+    <input id="policyPlanType" placeholder="Plan Type" required>
+    <input id="policyCoverLevel" placeholder="Cover Level" required>
+    <input id="policyPremium" placeholder="Premium" required>
+    <input id="policyStartDate" type="date" required>
+    <input id="policyStatus" placeholder="Status" required>
+    <button type="submit">Save</button>
+  </form>
+  <table border="1" id="table" style="margin-top:20px; width:100%;">
+    <thead><tr><th>Member ID</th><th>Plan</th><th>Cover</th><th>Premium</th><th>Start</th><th>Status</th><th>Actions</th></tr></thead>
+    <tbody></tbody>
+  </table>
+<script>
+const api = '/api/policies';
+const formP = document.getElementById('form');
+const midInput = document.getElementById('policyMemberId');
+const planInput = document.getElementById('policyPlanType');
+const coverInput = document.getElementById('policyCoverLevel');
+const premInput = document.getElementById('policyPremium');
+const dateInput = document.getElementById('policyStartDate');
+const statInput = document.getElementById('policyStatus');
+const tableP = document.querySelector('#table tbody');
+function loadP() {
+  fetch(api).then(res=>res.json()).then(data=>{
+    tableP.innerHTML = '';
+    data.forEach(p=>{
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${p.memberId}</td><td>${p.planType}</td><td>${p.coverLevel}</td>
+        <td>${p.premium}</td><td>${p.startDate}</td><td>${p.status}</td>
+        <td>
+          <button onclick="editP(${p.id})">Edit</button>
+          <button onclick="delP(${p.id})">Delete</button>
+        </td>`;
+      tableP.appendChild(row);
+    });
+  });
+}
+function editP(id){
+  fetch(api+'/'+id).then(res=>res.json()).then(p=>{
+    formP.style.display='block';
+    midInput.value=p.memberId;
+    planInput.value=p.planType;
+    coverInput.value=p.coverLevel;
+    premInput.value=p.premium;
+    dateInput.value=p.startDate;
+    statInput.value=p.status;
+    formP.onsubmit=e=>{
+      e.preventDefault();
+      fetch(api+'/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({
+          memberId:midInput.value,planType:planInput.value,coverLevel:coverInput.value,
+          premium:premInput.value,startDate:dateInput.value,status:statInput.value
+        })
+      }).then(()=>{loadP(); formP.style.display='none';});  
+    };
+  });
+}
+function delP(id){ fetch(api+'/'+id,{method:'DELETE'}).then(loadP); }
+document.getElementById('addBtn').onclick=()=>{
+  formP.style.display='block';
+  formP.onsubmit=e=>{e.preventDefault();fetch(api,{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({
+      memberId:midInput.value,planType:planInput.value,coverLevel:coverInput.value,
+      premium:premInput.value,startDate:dateInput.value,status:statInput.value
+    })
+  }).then(()=>{loadP(); formP.style.display='none';});
+  };  
+};
+window.onload = loadP;
+</script>
+</body>
+</html>

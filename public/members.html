@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Members - Lesedi PAS</title>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <h2>Member & Dependant Management</h2>
+  <button id="addBtn">Add Member</button>
+  <form id="form" style="display:none; margin-top:10px;">
+    <input id="memberName" placeholder="Name" required>
+    <input id="memberIdNumber" placeholder="ID Number" required>
+    <input id="memberAddress" placeholder="Address">
+    <button type="submit">Save</button>
+  </form>
+  <table border="1" id="table" style="margin-top:20px; width:100%;">
+    <thead><tr><th>Name</th><th>ID Number</th><th>Address</th><th>Actions</th></tr></thead>
+    <tbody></tbody>
+  </table>
+<script>
+const api = '/api/members';
+const form = document.getElementById('form');
+const nameInput = document.getElementById('memberName');
+const idInput = document.getElementById('memberIdNumber');
+const addrInput = document.getElementById('memberAddress');
+const tableBody = document.querySelector('#table tbody');
+function load() {
+  fetch(api).then(res=>res.json()).then(data=>{
+    tableBody.innerHTML = '';
+    data.forEach(m=>{
+      const row = document.createElement('tr');
+      row.innerHTML = `<td>${m.name}</td><td>${m.idNumber}</td><td>${m.address||''}</td>
+        <td>
+          <button onclick="edit(${m.id})">Edit</button>
+          <button onclick="del(${m.id})">Delete</button>
+        </td>`;
+      tableBody.appendChild(row);
+    });
+  });
+}
+function edit(id) {
+  fetch(api+'/'+id).then(res=>res.json()).then(m=>{
+    form.style.display='block';
+    nameInput.value=m.name;
+    idInput.value=m.idNumber;
+    addrInput.value=m.address;
+    form.onsubmit = e => {
+      e.preventDefault();
+      fetch(api+'/'+id,{method:'PUT',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({name:nameInput.value,idNumber:idInput.value,address:addrInput.value})
+      }).then(()=>{load(); form.style.display='none';});
+    };
+  });
+}
+function del(id){ fetch(api+'/'+id,{method:'DELETE'}).then(load); }
+document.getElementById('addBtn').onclick = ()=> {
+  form.style.display='block';
+  form.onsubmit = e => {
+    e.preventDefault();
+    fetch(api,{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name:nameInput.value,idNumber:idInput.value,address:addrInput.value})
+    }).then(()=>{load(); form.style.display='none';});
+  };
+};
+window.onload = load;
+</script>
+</body>
+</html>
